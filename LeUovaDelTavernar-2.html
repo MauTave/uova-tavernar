@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥚 Le Uova del Tavernar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brown:#6B3A2A; --brown-light:#8B5A3A; --cream:#FFF8F0;
+  --orange:#E8722A; --orange-light:#F4A460;
+  --green:#3D7A3D; --green-light:#7CB87C;
+  --red:#C0392B; --gold:#D4A017; --blue:#2E6DA4;
+  --shadow:0 4px 20px rgba(107,58,42,0.15);
+  --shadow-lg:0 8px 40px rgba(107,58,42,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Lato',sans-serif;background:var(--cream);min-height:100vh;
+  background-image:radial-gradient(ellipse at 10% 20%,rgba(232,114,42,0.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 90% 80%,rgba(61,122,61,0.06) 0%,transparent 50%);}
+header{background:linear-gradient(135deg,var(--brown) 0%,var(--brown-light) 100%);color:white;
+  text-align:center;padding:28px 20px 18px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;}
+header::before{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+header h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.5rem);font-weight:900;position:relative;letter-spacing:-0.5px;}
+header p{font-size:0.85rem;opacity:0.7;margin-top:5px;font-weight:300;letter-spacing:2.5px;text-transform:uppercase;position:relative;}
+.status-bar{background:white;border-bottom:3px solid var(--orange-light);padding:9px 20px;
+  display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);font-size:0.85rem;}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#CCC;flex-shrink:0;transition:background 0.3s;}
+.status-dot.connected{background:var(--green);}
+.status-dot.error{background:var(--red);}
+.status-text{color:#888;}
+.disconnect-btn{background:none;border:2px solid #EEE;border-radius:10px;padding:5px 12px;
+  font-size:0.8rem;color:#AAA;cursor:pointer;font-family:'Lato',sans-serif;transition:all 0.2s;}
+.disconnect-btn:hover{border-color:var(--red);color:var(--red);}
+.date-bar{background:white;border-bottom:2px solid #F0EAE0;padding:11px 20px;
+  display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.date-bar label{font-weight:700;color:var(--brown);font-size:1rem;}
+.date-bar input[type="date"]{border:2px solid var(--orange-light);border-radius:10px;
+  padding:8px 14px;font-size:1rem;font-family:'Lato',sans-serif;color:var(--brown);background:var(--cream);cursor:pointer;outline:none;}
+.date-bar input[type="date"]:focus{border-color:var(--orange);}
+.today-btn{background:var(--orange);color:white;border:none;border-radius:10px;
+  padding:8px 18px;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Lato',sans-serif;}
+.today-btn:hover{background:var(--brown);transform:translateY(-1px);}
+.container{max-width:900px;margin:0 auto;padding:22px 16px;}
+
+/* SETUP */
+.setup-panel{background:white;border-radius:20px;padding:32px;box-shadow:var(--shadow-lg);border:2px solid var(--orange-light);margin-bottom:24px;}
+.setup-panel h2{font-family:'Playfair Display',serif;color:var(--brown);font-size:1.5rem;margin-bottom:8px;}
+.setup-panel>p{color:#666;margin-bottom:20px;line-height:1.6;}
+.setup-steps{counter-reset:step;list-style:none;margin-bottom:24px;}
+.setup-steps li{counter-increment:step;padding:10px 10px 10px 44px;position:relative;
+  margin-bottom:10px;background:var(--cream);border-radius:10px;font-size:0.95rem;color:var(--brown);line-height:1.5;}
+.setup-steps li::before{content:counter(step);position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  width:26px;height:26px;background:var(--orange);color:white;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;}
+.setup-steps a{color:var(--orange);font-weight:700;}
+.config-area{background:#1E1E2E;border-radius:12px;padding:20px;margin-bottom:20px;
+  font-family:monospace;font-size:0.85rem;color:#CDD6F4;line-height:1.8;}
+.config-area .placeholder{color:#F38BA8;}
+.config-inputs{display:grid;gap:12px;}
+.config-inputs input{width:100%;border:2px solid #EEE;border-radius:10px;padding:10px 14px;
+  font-size:0.95rem;font-family:monospace;color:var(--brown);background:white;outline:none;transition:border-color 0.2s;}
+.config-inputs input:focus{border-color:var(--orange);}
+.config-inputs label{font-size:0.8rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:4px;}
+.connect-btn{background:linear-gradient(135deg,var(--green),var(--green-light));color:white;border:none;
+  border-radius:14px;padding:14px 36px;font-size:1.1rem;font-weight:700;cursor:pointer;
+  font-family:'Lato',sans-serif;box-shadow:var(--shadow);transition:all 0.2s;display:block;margin-top:16px;}
+.connect-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:white;border-radius:14px;padding:6px;margin-bottom:20px;box-shadow:var(--shadow);}
+.tab{flex:1;padding:11px 8px;border:none;border-radius:10px;background:none;
+  font-family:'Lato',sans-serif;font-weight:700;font-size:0.88rem;color:#AAA;cursor:pointer;transition:all 0.2s;}
+.tab.active{background:linear-gradient(135deg,var(--brown),var(--brown-light));color:white;box-shadow:0 2px 8px rgba(107,58,42,0.3);}
+.tab:hover:not(.active){color:var(--brown);background:var(--cream);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* SUMMARY STRIP */
+.summary-strip{background:linear-gradient(135deg,var(--brown) 0%,var(--brown-light) 100%);
+  border-radius:16px;padding:18px 20px;margin-bottom:20px;color:white;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;box-shadow:var(--shadow-lg);}
+.summary-item{text-align:center;}
+.summary-num{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.summary-label{font-size:0.68rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+.summary-divider{width:1px;background:rgba(255,255,255,0.2);align-self:stretch;}
+
+/* SECTION CARDS */
+.section-card{background:white;border-radius:20px;padding:24px;margin-bottom:18px;
+  box-shadow:var(--shadow);border:1px solid rgba(107,58,42,0.08);position:relative;overflow:hidden;}
+.section-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:20px 20px 0 0;}
+.section-eggs::before{background:linear-gradient(90deg,var(--orange),var(--gold));}
+.section-veg::before{background:linear-gradient(90deg,var(--green),var(--green-light));}
+.section-costs::before{background:linear-gradient(90deg,var(--red),#E74C3C);}
+.section-title{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.section-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.icon-eggs{background:linear-gradient(135deg,#FFF3D0,#FFE08A);}
+.icon-veg{background:linear-gradient(135deg,#D4F0D4,#A8D8A8);}
+.icon-costs{background:linear-gradient(135deg,#FFE5E5,#FFB3B3);}
+.section-title h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--brown);font-weight:700;}
+.section-title p{font-size:0.82rem;color:#999;margin-top:2px;}
+
+/* SUBSECTION */
+.subsection{margin-bottom:18px;}
+.subsection-label{font-size:0.75rem;font-weight:700;color:#AAA;text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed #EEE;display:flex;align-items:center;gap:8px;}
+.subsection-label span{background:var(--cream);color:var(--brown);border-radius:20px;padding:2px 10px;font-size:0.75rem;}
+
+/* INPUT GROUPS */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
+.input-group label{display:block;font-size:0.8rem;font-weight:700;color:var(--brown);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.input-group input,.input-group select,.input-group textarea{width:100%;border:2px solid #EEE;border-radius:12px;
+  padding:11px 14px;font-size:1.05rem;font-family:'Lato',sans-serif;color:var(--brown);
+  background:var(--cream);transition:border-color 0.2s,box-shadow 0.2s;outline:none;}
+.input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(232,114,42,0.1);}
+.input-group input[type="number"]{text-align:center;}
+.input-group textarea{resize:vertical;min-height:68px;font-size:0.95rem;}
+
+/* COUNTERS */
+.counter-wrap{display:flex;align-items:center;border-radius:13px;overflow:hidden;border:2px solid var(--orange-light);}
+.counter-btn{width:48px;height:48px;border:none;background:var(--orange-light);color:white;
+  font-size:1.7rem;cursor:pointer;transition:background 0.15s;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.counter-btn:hover{background:var(--orange);}
+.counter-btn:active{background:var(--brown);}
+.counter-input{flex:1;border:none!important;border-radius:0!important;text-align:center;
+  font-size:1.5rem!important;font-weight:700;color:var(--brown);background:white!important;min-width:0;padding:6px 4px!important;}
+.counter-input:focus{box-shadow:none!important;}
+
+/* SELL ROW — dropdown + counter side by side */
+.sell-row{display:grid;grid-template-columns:1fr auto;gap:0;align-items:stretch;border:2px solid #EEE;border-radius:13px;overflow:hidden;margin-bottom:10px;background:var(--cream);}
+.sell-row:focus-within{border-color:var(--orange);}
+.sell-select{border:none;background:transparent;padding:10px 14px;font-size:0.95rem;
+  font-family:'Lato',sans-serif;color:var(--brown);outline:none;cursor:pointer;flex:1;font-weight:600;}
+.sell-counter{display:flex;align-items:stretch;}
+.sell-counter button{width:40px;border:none;background:var(--orange-light);color:white;
+  font-size:1.4rem;cursor:pointer;transition:background 0.15s;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.sell-counter button:hover{background:var(--orange);}
+.sell-counter button:first-child{border-left:2px solid #EEE;}
+.sell-counter input{width:56px;border:none;text-align:center;font-size:1.2rem;font-weight:700;
+  color:var(--brown);background:white;padding:4px;outline:none;}
+.sell-label{font-size:0.78rem;font-weight:700;color:var(--brown);text-transform:uppercase;
+  letter-spacing:0.5px;margin-bottom:6px;}
+
+/* VEG / COST ROWS */
+.veg-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;padding:12px 0;border-bottom:1px dashed #EEE;}
+.veg-row:last-of-type{border-bottom:none;}
+.cost-row{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;padding:12px 0;border-bottom:1px dashed #EEE;}
+.cost-row:last-of-type{border-bottom:none;}
+.remove-btn{width:38px;height:38px;border-radius:10px;border:none;background:#FFE5E5;
+  color:var(--red);font-size:1.1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.remove-btn:hover{background:var(--red);color:white;}
+.add-row-btn{display:flex;align-items:center;gap:8px;background:none;font-weight:700;
+  font-size:0.92rem;padding:9px 16px;border-radius:12px;cursor:pointer;margin-top:10px;transition:all 0.2s;font-family:'Lato',sans-serif;}
+.add-veg-btn{border:2px dashed var(--green-light);color:var(--green);}
+.add-veg-btn:hover{background:#E8F5E8;border-style:solid;}
+.add-cost-btn{border:2px dashed #FFB3B3;color:var(--red);}
+.add-cost-btn:hover{background:#FFE5E5;border-style:solid;}
+
+/* NOTE */
+.note-section{background:white;border-radius:20px;padding:22px 26px;margin-bottom:18px;
+  box-shadow:var(--shadow);border-top:5px solid var(--gold);}
+.note-section h2{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--brown);margin-bottom:10px;}
+
+/* SAVE */
+.save-section{text-align:center;padding:6px 0 22px;}
+.save-btn{background:linear-gradient(135deg,var(--brown),var(--brown-light));color:white;border:none;
+  border-radius:18px;padding:17px 56px;font-size:1.2rem;font-weight:700;font-family:'Lato',sans-serif;
+  cursor:pointer;box-shadow:var(--shadow-lg);transition:all 0.25s;}
+.save-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(107,58,42,0.4);}
+.save-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+/* RIEPILOGO CONTROLS */
+.riepilogo-controls{background:white;border-radius:16px;padding:16px 20px;margin-bottom:18px;
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.riepilogo-controls label{font-weight:700;color:var(--brown);font-size:0.9rem;}
+.view-toggle{display:flex;gap:4px;background:var(--cream);border-radius:10px;padding:4px;}
+.view-btn{padding:8px 18px;border:none;border-radius:8px;background:none;
+  font-family:'Lato',sans-serif;font-weight:700;font-size:0.88rem;color:#AAA;cursor:pointer;transition:all 0.2s;}
+.view-btn.active{background:white;color:var(--brown);box-shadow:0 2px 8px rgba(107,58,42,0.15);}
+.year-select{border:2px solid var(--orange-light);border-radius:10px;padding:8px 14px;
+  font-size:0.95rem;font-family:'Lato',sans-serif;color:var(--brown);background:var(--cream);outline:none;cursor:pointer;}
+.year-select:focus{border-color:var(--orange);}
+
+/* HISTORY */
+.history-section{background:white;border-radius:20px;padding:26px;margin-bottom:18px;box-shadow:var(--shadow);}
+.history-section h2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--brown);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.history-table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+.history-table th{background:var(--cream);color:var(--brown);font-weight:700;padding:9px 10px;
+  text-align:center;border-bottom:2px solid var(--orange-light);font-size:0.77rem;text-transform:uppercase;letter-spacing:0.5px;}
+.history-table td{padding:9px 10px;text-align:center;border-bottom:1px solid #F5F0E8;color:var(--brown);}
+.history-table tr:hover td{background:var(--cream);}
+.income-val{color:var(--green);font-weight:700;}
+.expense-val{color:var(--red);font-weight:700;}
+.utile-pos{color:var(--green);font-weight:700;}
+.utile-neg{color:var(--red);font-weight:700;}
+.delete-row-btn{background:none;border:none;color:#CCC;cursor:pointer;font-size:1rem;transition:color 0.2s;padding:2px 5px;}
+.delete-row-btn:hover{color:var(--red);}
+.no-data{text-align:center;color:#BBB;padding:28px;font-style:italic;}
+.loading-spinner{text-align:center;padding:28px;color:#BBB;font-size:1rem;}
+
+/* ANNUAL SUMMARY CARD */
+.annual-card{background:linear-gradient(135deg,var(--brown),var(--brown-light));color:white;
+  border-radius:16px;padding:20px 24px;margin-bottom:18px;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;}
+.annual-item{text-align:center;}
+.annual-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;line-height:1;}
+.annual-label{font-size:0.7rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,var(--brown) 0%,var(--brown-light) 60%,#A0522D 100%);
+  display:flex;align-items:center;justify-content:center;z-index:9998;padding:20px;}
+.login-screen::before{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M50 50v-6h-2v6h-6v2h6v6h2v-6h6v-2h-6zm0-40V4h-2v6h-6v2h6v6h2v-6h6V4h-6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.login-card{background:white;border-radius:28px;padding:44px 40px;max-width:420px;width:100%;
+  box-shadow:0 20px 80px rgba(0,0,0,0.4);position:relative;text-align:center;}
+.login-logo{font-size:3.5rem;margin-bottom:8px;line-height:1;}
+.login-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--brown);margin-bottom:4px;}
+.login-subtitle{font-size:0.82rem;color:#AAA;margin-bottom:32px;letter-spacing:1.5px;text-transform:uppercase;}
+.login-input-wrap{position:relative;margin-bottom:14px;}
+.login-input{width:100%;border:2px solid #EEE;border-radius:14px;padding:16px 50px 16px 18px;
+  font-size:1.15rem;font-family:'Lato',sans-serif;color:var(--brown);background:var(--cream);
+  outline:none;transition:border-color 0.2s,box-shadow 0.2s;text-align:center;letter-spacing:4px;}
+.login-input:focus{border-color:var(--orange);box-shadow:0 0 0 4px rgba(232,114,42,0.12);}
+.login-input::placeholder{letter-spacing:1px;color:#CCC;font-size:0.95rem;}
+.toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;font-size:1.2rem;color:#CCC;padding:4px;}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--brown),var(--brown-light));
+  color:white;border:none;border-radius:14px;padding:16px;font-size:1.1rem;font-weight:700;
+  cursor:pointer;font-family:'Lato',sans-serif;box-shadow:var(--shadow-lg);transition:all 0.25s;margin-top:6px;}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(107,58,42,0.4);}
+.login-error{color:var(--red);font-size:0.9rem;margin-top:12px;min-height:20px;font-weight:700;}
+.login-hint{color:#CCC;font-size:0.76rem;margin-top:14px;}
+.logout-btn{background:none;border:2px solid #EEE;border-radius:10px;padding:5px 12px;
+  font-size:0.8rem;color:#AAA;cursor:pointer;font-family:'Lato',sans-serif;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);
+  background:var(--green);color:white;padding:13px 26px;border-radius:14px;font-weight:700;
+  font-size:0.95rem;box-shadow:var(--shadow-lg);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);z-index:9999;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--red);}
+
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+@media(max-width:600px){
+  .input-grid{grid-template-columns:1fr 1fr;}
+  .veg-row{grid-template-columns:1fr 1fr;}
+  .veg-row>*:nth-child(3){grid-column:1;}
+  .veg-row>*:nth-child(4){grid-column:2;justify-self:end;}
+  .cost-row{grid-template-columns:1fr 1fr;}
+  .save-btn{width:100%;}
+  .summary-divider{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🥚</div>
+    <div class="login-title">Le Uova del Tavernar</div>
+    <div class="login-subtitle">Accesso privato</div>
+    <div class="login-input-wrap">
+      <input class="login-input" type="password" id="loginPassword" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="toggle-pw" onclick="togglePw()" title="Mostra/nascondi">👁</button>
+    </div>
+    <button class="login-btn" onclick="doLogin()">🔓 &nbsp; Entra</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">Accesso riservato al proprietario</div>
+  </div>
+</div>
+
+<header>
+  <h1>🥚 Le Uova del Tavernar</h1>
+  <p>Registro giornaliero · uova &amp; orto</p>
+</header>
+
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span class="status-text" id="statusText">Non connesso al database</span>
+  <button class="disconnect-btn" id="disconnectBtn" onclick="showSetup()" style="display:none">⚙ Configurazione</button>
+  <button class="logout-btn" onclick="doLogout()" style="display:none" id="logoutBtn">🔒 Esci</button>
+</div>
+
+<div class="container">
+
+  <!-- SETUP PANEL -->
+  <div class="setup-panel" id="setupPanel">
+    <h2>☁️ Configura il database cloud</h2>
+    <p>Per salvare i dati nel cloud (così non li perdi mai), collega l'app a <strong>Firebase</strong> di Google — gratuito per sempre per uso familiare. Segui questi passi una sola volta:</p>
+    <ol class="setup-steps">
+      <li>Vai su <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> e accedi con il tuo account Google</li>
+      <li>Clicca <strong>"Aggiungi progetto"</strong>, dai un nome (es. <em>uova-tavernar</em>), disabilita Google Analytics e crea</li>
+      <li>Nel menu a sinistra, clicca <strong>"Firestore Database"</strong> → <strong>"Crea database"</strong> → scegli <em>Modalità test</em> → regione <em>europe-west</em></li>
+      <li>Torna alla home del progetto, clicca l'icona <strong>&lt;/&gt;</strong> (Web), dai un nome all'app e registra</li>
+      <li>Copia i valori dalla schermata <strong>firebaseConfig</strong> nei campi qui sotto:</li>
+    </ol>
+    <div class="config-area">
+      const firebaseConfig = {<br>
+      &nbsp;&nbsp;apiKey: <span class="placeholder">"AIza..."</span>,<br>
+      &nbsp;&nbsp;authDomain: <span class="placeholder">"il-tuo-progetto.firebaseapp.com"</span>,<br>
+      &nbsp;&nbsp;projectId: <span class="placeholder">"il-tuo-progetto"</span>,<br>
+      &nbsp;&nbsp;storageBucket: <span class="placeholder">"il-tuo-progetto.appspot.com"</span>,<br>
+      &nbsp;&nbsp;messagingSenderId: <span class="placeholder">"123456789"</span>,<br>
+      &nbsp;&nbsp;appId: <span class="placeholder">"1:123:web:abc123"</span><br>
+      };
+    </div>
+    <div class="config-inputs">
+      <div><label>API Key</label><input type="text" id="cfg-apiKey" placeholder="AIzaSy..."></div>
+      <div><label>Auth Domain</label><input type="text" id="cfg-authDomain" placeholder="mio-progetto.firebaseapp.com"></div>
+      <div><label>Project ID</label><input type="text" id="cfg-projectId" placeholder="mio-progetto"></div>
+      <div><label>Storage Bucket</label><input type="text" id="cfg-storageBucket" placeholder="mio-progetto.appspot.com"></div>
+      <div><label>Messaging Sender ID</label><input type="text" id="cfg-messagingSenderId" placeholder="123456789012"></div>
+      <div><label>App ID</label><input type="text" id="cfg-appId" placeholder="1:123456:web:abc123def456"></div>
+    </div>
+    <button class="connect-btn" onclick="connectFirebase()">☁️ Connetti al database</button>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="mainApp" style="display:none">
+
+    <div class="date-bar">
+      <label>📅 Data:</label>
+      <input type="date" id="currentDate">
+      <button class="today-btn" onclick="setToday()">Oggi</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('inserimento',this)">✏️ Inserisci</button>
+      <button class="tab" onclick="switchTab('storico',this)">📋 Storico</button>
+      <button class="tab" onclick="switchTab('riepilogo',this)">📊 Riepilogo</button>
+    </div>
+
+    <!-- TAB INSERIMENTO -->
+    <div class="tab-content active" id="tab-inserimento">
+
+      <div class="summary-strip">
+        <div class="summary-item"><div class="summary-num" id="sum-uova">0</div><div class="summary-label">🥚 Prodotte</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item"><div class="summary-num" id="sum-vendute">0</div><div class="summary-label">🛍 Vendute</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item"><div class="summary-num" id="sum-incasso">€0</div><div class="summary-label">💰 Inc. uova</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item"><div class="summary-num" id="sum-verdura">€0</div><div class="summary-label">🌿 Verdura</div></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item"><div class="summary-num" id="sum-spese">€0</div><div class="summary-label">📤 Spese</div></div>
+      </div>
+
+      <!-- SEZIONE UOVA -->
+      <div class="section-card section-eggs">
+        <div class="section-title">
+          <div class="section-icon icon-eggs">🥚</div>
+          <div><h2>Uova</h2><p>Produzione e vendite del giorno</p></div>
+        </div>
+
+        <!-- PRODOTTE -->
+        <div class="subsection">
+          <div class="subsection-label">🐔 <span>Uova prodotte oggi</span></div>
+          <div style="max-width:220px">
+            <div class="counter-wrap">
+              <button class="counter-btn" onclick="adjust('uoveProdotte',-1)">−</button>
+              <input class="counter-input" type="number" id="uoveProdotte" value="0" min="0" oninput="updateLive()">
+              <button class="counter-btn" onclick="adjust('uoveProdotte',1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VENDUTE -->
+        <div class="subsection">
+          <div class="subsection-label">🛒 <span>Vendite del giorno</span></div>
+          <div>
+            <div class="sell-label">Tipo scatola venduta</div>
+            <!-- Riga 1 -->
+            <div class="sell-row" id="sellRow0">
+              <select class="sell-select" id="sellType0" onchange="updateLive()">
+                <option value="2.5">📦 Scatola a 2,5€</option>
+                <option value="3">📦 Scatola a 3€</option>
+              </select>
+              <div class="sell-counter">
+                <button onclick="adjustSell(0,-1)">−</button>
+                <input type="number" id="sellQty0" value="0" min="0" oninput="updateLive()">
+                <button onclick="adjustSell(0,1)">+</button>
+              </div>
+            </div>
+            <!-- Riga 2 -->
+            <div class="sell-row" id="sellRow1">
+              <select class="sell-select" id="sellType1" onchange="updateLive()">
+                <option value="3">📦 Scatola a 3€</option>
+                <option value="2.5">📦 Scatola a 2,5€</option>
+              </select>
+              <div class="sell-counter">
+                <button onclick="adjustSell(1,-1)">−</button>
+                <input type="number" id="sellQty1" value="0" min="0" oninput="updateLive()">
+                <button onclick="adjustSell(1,1)">+</button>
+              </div>
+            </div>
+            <p style="font-size:0.8rem;color:#AAA;margin-top:8px">Ogni scatola = 1 dozzina (12 uova)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERDURA -->
+      <div class="section-card section-veg">
+        <div class="section-title">
+          <div class="section-icon icon-veg">🥔</div>
+          <div><h2>Verdura</h2><p>Patate, cavoli e altri prodotti dell'orto</p></div>
+        </div>
+        <div id="vegRows"></div>
+        <button class="add-row-btn add-veg-btn" onclick="addVegRow()">＋ Aggiungi prodotto</button>
+      </div>
+
+      <!-- SPESE -->
+      <div class="section-card section-costs">
+        <div class="section-title">
+          <div class="section-icon icon-costs">💸</div>
+          <div><h2>Spese</h2><p>Mangime, galline nuove, sementi...</p></div>
+        </div>
+        <div id="costRows"></div>
+        <button class="add-row-btn add-cost-btn" onclick="addCostRow()">＋ Aggiungi spesa</button>
+      </div>
+
+      <!-- NOTE -->
+      <div class="note-section">
+        <h2>📝 Note del giorno</h2>
+        <textarea id="noteGiorno" placeholder="Appunti liberi: attività in campo, eventi, osservazioni..."></textarea>
+      </div>
+
+      <div class="save-section">
+        <button class="save-btn" id="saveBtn" onclick="saveDay()">💾 &nbsp; Salva la giornata</button>
+      </div>
+    </div><!-- end tab inserimento -->
+
+    <!-- TAB STORICO -->
+    <div class="tab-content" id="tab-storico">
+      <div class="history-section">
+        <h2>📋 Storico registrazioni</h2>
+        <div id="historyContent"><div class="loading-spinner">⏳ Caricamento...</div></div>
+      </div>
+    </div>
+
+    <!-- TAB RIEPILOGO -->
+    <div class="tab-content" id="tab-riepilogo">
+      <div class="riepilogo-controls">
+        <label>Visualizza:</label>
+        <div class="view-toggle">
+          <button class="view-btn active" id="viewBtnMensile" onclick="setView('mensile')">Mensile</button>
+          <button class="view-btn" id="viewBtnAnnuale" onclick="setView('annuale')">Annuale</button>
+        </div>
+        <label>Anno:</label>
+        <select class="year-select" id="yearSelect" onchange="renderRiepilogo()">
+          <option value="all">Tutti gli anni</option>
+        </select>
+      </div>
+      <div id="riepilogoContent"><div class="loading-spinner">⏳ Caricamento...</div></div>
+    </div>
+
+  </div><!-- end mainApp -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+let db = null, firebaseReady = false, allData = [], currentView = 'mensile';
+
+// ---- FIREBASE ----
+window.connectFirebase = async function() {
+  const cfg = {
+    apiKey: document.getElementById('cfg-apiKey').value.trim(),
+    authDomain: document.getElementById('cfg-authDomain').value.trim(),
+    projectId: document.getElementById('cfg-projectId').value.trim(),
+    storageBucket: document.getElementById('cfg-storageBucket').value.trim(),
+    messagingSenderId: document.getElementById('cfg-messagingSenderId').value.trim(),
+    appId: document.getElementById('cfg-appId').value.trim(),
+  };
+  if (!cfg.apiKey || !cfg.projectId) { showToast('⚠️ Inserisci almeno API Key e Project ID', true); return; }
+  try {
+    setStatus('connecting','Connessione in corso...');
+    const app = initializeApp(cfg);
+    db = getFirestore(app);
+    await getDocs(query(collection(db,'fattoria'), orderBy('date','desc')));
+    firebaseReady = true;
+    localStorage.setItem('fb_config', JSON.stringify(cfg));
+    document.getElementById('setupPanel').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    document.getElementById('disconnectBtn').style.display = 'inline-block';
+    setStatus('connected','Connesso al database cloud ☁️');
+    setToday(); renderVegRows(); renderCostRows(); updateLive(); loadHistory();
+  } catch(e) {
+    setStatus('error','Errore di connessione — controlla i dati');
+    showToast('❌ Connessione fallita', true);
+    console.error(e);
+  }
+};
+
+window.showSetup = function() {
+  document.getElementById('setupPanel').style.display = 'block';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('disconnectBtn').style.display = 'none';
+  setStatus('','Non connesso al database');
+};
+
+function setStatus(state, text) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot'+(state==='connected'?' connected':state==='error'?' error':'');
+  document.getElementById('statusText').textContent = text;
+}
+
+// Auto-reconnect
+const savedCfg = localStorage.getItem('fb_config');
+if (savedCfg) {
+  const c = JSON.parse(savedCfg);
+  ['apiKey','authDomain','projectId','storageBucket','messagingSenderId','appId']
+    .forEach(k => { const el = document.getElementById('cfg-'+k); if(el) el.value = c[k]||''; });
+  window.connectFirebase();
+}
+
+// ---- DATE ----
+window.setToday = function() {
+  document.getElementById('currentDate').value = new Date().toISOString().split('T')[0];
+};
+
+// ---- COUNTERS ----
+window.adjust = function(id, delta) {
+  const el = document.getElementById(id);
+  el.value = Math.max(0,(parseInt(el.value)||0)+delta);
+  updateLive();
+};
+window.adjustSell = function(idx, delta) {
+  const el = document.getElementById('sellQty'+idx);
+  el.value = Math.max(0,(parseInt(el.value)||0)+delta);
+  updateLive();
+};
+
+// ---- VEG ROWS ----
+let vegItems = [{type:'Patate',qty:'',price:''}];
+window.renderVegRows = function() {
+  const c = document.getElementById('vegRows'); c.innerHTML='';
+  vegItems.forEach((item,i) => {
+    const d = document.createElement('div'); d.className='veg-row';
+    d.innerHTML = `
+      <div class="input-group"><label>Prodotto</label>
+        <select onchange="vegItems[${i}].type=this.value">
+          ${['Patate','Cavolo','Pomodori','Piselli','Mais','Zucchine','Altro'].map(o=>`<option value="${o}"${item.type===o?' selected':''}>${o}</option>`).join('')}
+        </select></div>
+      <div class="input-group"><label>Kg / Qtà</label>
+        <input type="number" step="0.1" min="0" value="${item.qty||''}" placeholder="0"
+          onchange="vegItems[${i}].qty=parseFloat(this.value)||0"></div>
+      <div class="input-group"><label>Incasso €</label>
+        <input type="number" step="0.5" min="0" value="${item.price||''}" placeholder="0.00"
+          onchange="vegItems[${i}].price=parseFloat(this.value)||0;updateLive()"></div>
+      <button class="remove-btn" onclick="removeVeg(${i})">✕</button>`;
+    c.appendChild(d);
+  });
+};
+window.addVegRow = function() { vegItems.push({type:'Patate',qty:'',price:''}); renderVegRows(); };
+window.removeVeg = function(i) { vegItems.splice(i,1); renderVegRows(); updateLive(); };
+
+// ---- COST ROWS ----
+let costItems = [];
+const costPresets = ['Mangime galline','Galline nuove','Sementi','Fertilizzante','Attrezzatura','Altro'];
+window.renderCostRows = function() {
+  const c = document.getElementById('costRows');
+  if (!costItems.length) { c.innerHTML='<p style="color:#CCC;font-style:italic;padding:6px 0">Nessuna spesa oggi</p>'; return; }
+  c.innerHTML='';
+  costItems.forEach((item,i) => {
+    const d = document.createElement('div'); d.className='cost-row';
+    d.innerHTML = `
+      <div class="input-group"><label>Tipo spesa</label>
+        <select onchange="costItems[${i}].type=this.value">
+          ${costPresets.map(o=>`<option value="${o}"${item.type===o?' selected':''}>${o}</option>`).join('')}
+        </select></div>
+      <div class="input-group"><label>Importo €</label>
+        <input type="number" step="0.5" min="0" value="${item.amount||0}" placeholder="0.00"
+          onchange="costItems[${i}].amount=parseFloat(this.value)||0;updateLive()"></div>
+      <button class="remove-btn" onclick="removeCost(${i})">✕</button>`;
+    c.appendChild(d);
+  });
+};
+window.addCostRow = function() { costItems.push({type:'Mangime galline',amount:0}); renderCostRows(); };
+window.removeCost = function(i) { costItems.splice(i,1); renderCostRows(); updateLive(); };
+
+// ---- LIVE SUMMARY ----
+window.updateLive = function() {
+  const prod = parseInt(document.getElementById('uoveProdotte')?.value)||0;
+  let vendute=0, incassoUova=0;
+  for(let i=0;i<2;i++) {
+    const q = parseInt(document.getElementById('sellQty'+i)?.value)||0;
+    const p = parseFloat(document.getElementById('sellType'+i)?.value)||0;
+    vendute += q;
+    incassoUova += q*p;
+  }
+  const incassoVerdura = vegItems.reduce((s,v)=>s+(parseFloat(v.price)||0),0);
+  const totalSpese = costItems.reduce((s,c)=>s+(parseFloat(c.amount)||0),0);
+  document.getElementById('sum-uova').textContent = prod;
+  document.getElementById('sum-vendute').textContent = vendute;
+  document.getElementById('sum-incasso').textContent = '€'+incassoUova.toFixed(2);
+  document.getElementById('sum-verdura').textContent = '€'+incassoVerdura.toFixed(2);
+  document.getElementById('sum-spese').textContent = '€'+totalSpese.toFixed(2);
+};
+
+// ---- SAVE ----
+window.saveDay = async function() {
+  if (!firebaseReady) { showToast('⚠️ Connetti prima il database', true); return; }
+  const date = document.getElementById('currentDate').value;
+  if (!date) { showToast('⚠️ Seleziona una data!', true); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled=true; btn.textContent='⏳ Salvataggio...';
+
+  const prod = parseInt(document.getElementById('uoveProdotte').value)||0;
+  const note = document.getElementById('noteGiorno').value;
+  let vendute=0, incassoUova=0;
+  const vendite = [];
+  for(let i=0;i<2;i++) {
+    const q = parseInt(document.getElementById('sellQty'+i).value)||0;
+    const p = parseFloat(document.getElementById('sellType'+i).value)||0;
+    vendute+=q; incassoUova+=q*p;
+    if(q>0) vendite.push({prezzo:p, quantita:q});
+  }
+  const incassoVerdura = vegItems.reduce((s,v)=>s+(parseFloat(v.price)||0),0);
+  const totalSpese = costItems.reduce((s,c)=>s+(parseFloat(c.amount)||0),0);
+
+  const entry = {
+    date, uoveProdotte:prod, uoveVendute:vendute, vendite,
+    incassoUova, incassoVerdura, totalIncasso:incassoUova+incassoVerdura,
+    totalSpese, verdura:vegItems.filter(v=>v.price||v.qty),
+    costi:costItems, note, savedAt:new Date().toISOString()
+  };
+
+  try {
+    await setDoc(doc(db,'fattoria',date), entry);
+    showToast('✅ Salvato nel cloud!');
+    resetForm(); loadHistory();
+  } catch(e) {
+    showToast('❌ Errore nel salvataggio', true); console.error(e);
+  } finally {
+    btn.disabled=false; btn.innerHTML='💾 &nbsp; Salva la giornata';
+  }
+};
+
+function resetForm() {
+  document.getElementById('uoveProdotte').value=0;
+  document.getElementById('sellQty0').value=0;
+  document.getElementById('sellQty1').value=0;
+  document.getElementById('noteGiorno').value='';
+  vegItems=[{type:'Patate',qty:'',price:''}];
+  costItems=[]; renderVegRows(); renderCostRows(); updateLive();
+}
+
+// ---- LOAD ----
+async function loadHistory() {
+  if (!firebaseReady) return;
+  try {
+    const snap = await getDocs(query(collection(db,'fattoria'), orderBy('date','desc')));
+    allData = snap.docs.map(d=>d.data());
+    renderHistory();
+    populateYearSelect();
+    renderRiepilogo();
+  } catch(e) { console.error(e); }
+}
+
+window.deleteEntry = async function(date) {
+  if (!confirm('Eliminare la registrazione del '+date+'?')) return;
+  try {
+    await deleteDoc(doc(db,'fattoria',date));
+    showToast('🗑 Eliminato'); loadHistory();
+  } catch(e) { showToast('❌ Errore eliminazione', true); }
+};
+
+// ---- STORICO ----
+function renderHistory() {
+  const c = document.getElementById('historyContent');
+  if (!allData.length) { c.innerHTML='<p class="no-data">Nessuna registrazione ancora. 🐔</p>'; return; }
+  let html=`<div style="overflow-x:auto"><table class="history-table"><thead><tr>
+    <th>Data</th><th>🥚 Prod.</th><th>🥚 Vend.</th><th>💰 Uova</th><th>🌿 Verdura</th><th>💸 Spese</th><th>📝</th><th></th>
+  </tr></thead><tbody>`;
+  allData.slice(0,60).forEach(e=>{
+    const d = new Date(e.date+'T00:00:00');
+    const ds = d.toLocaleDateString('it-IT',{weekday:'short',day:'2-digit',month:'2-digit',year:'2-digit'});
+    html+=`<tr>
+      <td style="font-weight:700">${ds}</td>
+      <td>${e.uoveProdotte||0}</td>
+      <td>${e.uoveVendute||0}</td>
+      <td class="income-val">€${(e.incassoUova||0).toFixed(2)}</td>
+      <td class="income-val">${e.incassoVerdura>0?'€'+e.incassoVerdura.toFixed(2):'—'}</td>
+      <td class="${e.totalSpese>0?'expense-val':''}">${e.totalSpese>0?'€'+e.totalSpese.toFixed(2):'—'}</td>
+      <td style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:0.78rem;color:#888">${e.note||''}</td>
+      <td><button class="delete-row-btn" onclick="deleteEntry('${e.date}')">🗑</button></td>
+    </tr>`;
+  });
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+}
+
+// ---- ANNO AGRICOLO (nov → ott anno successivo) ----
+// Data "2023-11-01" → anno agricolo "2023-2024"
+// Data "2024-10-31" → anno agricolo "2023-2024"
+// Data "2024-11-01" → anno agricolo "2024-2025"
+function getAnnoAgricolo(dateStr) {
+  const [y, m] = dateStr.split('-').map(Number);
+  // novembre (11) e dicembre (12) appartengono all'anno agricolo che inizia quell'anno
+  if (m >= 11) return `${y}-${y+1}`;
+  else return `${y-1}-${y}`;
+}
+
+// Ordine mesi nell'anno agricolo: nov, dic, gen, feb, mar, apr, mag, giu, lug, ago, set, ott
+const MESI_AGRICOLI = [11,12,1,2,3,4,5,6,7,8,9,10];
+
+function sortMesiAgricoli(chiavi) {
+  // chiavi = array di "YYYY-MM"
+  return chiavi.sort((a, b) => {
+    const [ya, ma] = a.split('-').map(Number);
+    const [yb, mb] = b.split('-').map(Number);
+    const aanno = getAnnoAgricolo(a+'-01');
+    const banno = getAnnoAgricolo(b+'-01');
+    if (aanno !== banno) return aanno < banno ? 1 : -1; // anni agricoli decrescenti
+    // stesso anno agricolo: ordina per posizione in MESI_AGRICOLI
+    return MESI_AGRICOLI.indexOf(ma) - MESI_AGRICOLI.indexOf(mb);
+  });
+}
+
+// ---- RIEPILOGO ----
+function populateYearSelect() {
+  const sel = document.getElementById('yearSelect');
+  const anni = [...new Set(allData.map(e=>getAnnoAgricolo(e.date)))].sort().reverse();
+  sel.innerHTML='<option value="all">Tutti gli anni</option>';
+  anni.forEach(a=>{ const o=document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+}
+
+window.setView = function(v) {
+  currentView=v;
+  document.getElementById('viewBtnMensile').classList.toggle('active',v==='mensile');
+  document.getElementById('viewBtnAnnuale').classList.toggle('active',v==='annuale');
+  renderRiepilogo();
+};
+
+window.renderRiepilogo = function() {
+  const c = document.getElementById('riepilogoContent');
+  if (!allData.length) { c.innerHTML='<p class="no-data">Nessun dato ancora.</p>'; return; }
+  const selAnno = document.getElementById('yearSelect')?.value||'all';
+  const filtered = selAnno==='all' ? allData : allData.filter(e=>getAnnoAgricolo(e.date)===selAnno);
+  if (currentView==='annuale') renderAnnuale(c, filtered);
+  else renderMensile(c, filtered, selAnno);
+};
+
+function renderAnnuale(c, filtered) {
+  const anni = {};
+  filtered.forEach(e=>{
+    const a = getAnnoAgricolo(e.date);
+    if (!anni[a]) anni[a]={uova:0,incassoUova:0,incassoVerdura:0,spese:0,giorni:0};
+    anni[a].uova+=e.uoveProdotte||0;
+    anni[a].incassoUova+=e.incassoUova||0;
+    anni[a].incassoVerdura+=e.incassoVerdura||0;
+    anni[a].spese+=e.totalSpese||0;
+    anni[a].giorni+=1;
+  });
+  const sorted = Object.keys(anni).sort().reverse();
+  let html='';
+  sorted.forEach(a=>{
+    const d=anni[a];
+    const totInc=d.incassoUova+d.incassoVerdura;
+    const utile=totInc-d.spese;
+    html+=`
+    <div class="annual-card">
+      <div class="annual-item"><div class="annual-num" style="font-size:1.3rem">${a}</div><div class="annual-label">Anno agricolo</div></div>
+      <div class="annual-item"><div class="annual-num">${d.uova.toLocaleString()}</div><div class="annual-label">🥚 Uova totali</div></div>
+      <div class="annual-item"><div class="annual-num">€${d.incassoUova.toFixed(0)}</div><div class="annual-label">💰 Inc. uova</div></div>
+      <div class="annual-item"><div class="annual-num">€${d.incassoVerdura.toFixed(0)}</div><div class="annual-label">🌿 Inc. verdura</div></div>
+      <div class="annual-item"><div class="annual-num">€${d.spese.toFixed(0)}</div><div class="annual-label">💸 Spese</div></div>
+      <div class="annual-item"><div class="annual-num" style="color:${utile>=0?'#90EE90':'#FFB3B3'}">${utile>=0?'+':''}€${utile.toFixed(0)}</div><div class="annual-label">✅ Utile netto</div></div>
+      <div class="annual-item"><div class="annual-num">${d.giorni}</div><div class="annual-label">📅 Giorni registrati</div></div>
+    </div>`;
+  });
+  c.innerHTML=html||'<p class="no-data">Nessun dato per questo periodo.</p>';
+}
+
+function renderMensile(c, filtered, selAnno) {
+  const months={};
+  filtered.forEach(e=>{
+    const k=e.date.substring(0,7);
+    if (!months[k]) months[k]={uova:0,incassoUova:0,incassoVerdura:0,spese:0};
+    months[k].uova+=e.uoveProdotte||0;
+    months[k].incassoUova+=e.incassoUova||0;
+    months[k].incassoVerdura+=e.incassoVerdura||0;
+    months[k].spese+=e.totalSpese||0;
+  });
+  const sorted = sortMesiAgricoli(Object.keys(months));
+  if (!sorted.length) { c.innerHTML='<p class="no-data">Nessun dato per questo anno.</p>'; return; }
+
+  // Titolo periodo
+  const periodoLabel = selAnno==='all' ? 'Tutti gli anni agricoli' : `Anno agricolo ${selAnno} (nov ${selAnno.split('-')[0]} – ott ${selAnno.split('-')[1]})`;
+
+  let html=`<p style="font-size:0.82rem;color:#AAA;margin-bottom:12px;font-style:italic">${periodoLabel}</p>`;
+  html+=`<div style="overflow-x:auto"><table class="history-table"><thead><tr>
+    <th>Mese</th><th>🥚 Uova</th><th>💰 Inc. Uova</th><th>🌿 Inc. Verdura</th><th>💸 Spese</th><th>✅ Utile netto</th>
+  </tr></thead><tbody>`;
+  let totUova=0,totIncUova=0,totIncVerdura=0,totSpese=0;
+  let curAnno=null;
+  sorted.forEach(k=>{
+    const m=months[k];
+    const [y,mo]=k.split('-').map(Number);
+    const anno=getAnnoAgricolo(k+'-01');
+    // Se visualizziamo tutti gli anni, aggiungi separatore tra anni agricoli
+    if (selAnno==='all' && anno!==curAnno) {
+      curAnno=anno;
+      html+=`<tr><td colspan="6" style="background:var(--orange-light);color:var(--brown);font-weight:700;font-size:0.8rem;padding:6px 10px;text-align:left">📅 Anno agricolo ${anno}</td></tr>`;
+    }
+    const name=new Date(y,mo-1,1).toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+    const utile=m.incassoUova+m.incassoVerdura-m.spese;
+    totUova+=m.uova; totIncUova+=m.incassoUova; totIncVerdura+=m.incassoVerdura; totSpese+=m.spese;
+    html+=`<tr>
+      <td style="font-weight:700;text-transform:capitalize">${name}</td>
+      <td>${m.uova}</td>
+      <td class="income-val">€${m.incassoUova.toFixed(2)}</td>
+      <td class="income-val">${m.incassoVerdura>0?'€'+m.incassoVerdura.toFixed(2):'—'}</td>
+      <td class="${m.spese>0?'expense-val':''}">€${m.spese.toFixed(2)}</td>
+      <td class="${utile>=0?'utile-pos':'utile-neg'}">€${utile.toFixed(2)}</td>
+    </tr>`;
+  });
+  const totUtile=totIncUova+totIncVerdura-totSpese;
+  html+=`<tr style="background:var(--cream);font-weight:700;border-top:2px solid var(--orange-light)">
+    <td>TOTALE</td><td>${totUova}</td>
+    <td class="income-val">€${totIncUova.toFixed(2)}</td>
+    <td class="income-val">€${totIncVerdura.toFixed(2)}</td>
+    <td class="${totSpese>0?'expense-val':''}">€${totSpese.toFixed(2)}</td>
+    <td class="${totUtile>=0?'utile-pos':'utile-neg'}">€${totUtile.toFixed(2)}</td>
+  </tr>`;
+  html+='</tbody></table></div>';
+  c.innerHTML=html;
+}
+
+// ---- TABS ----
+window.switchTab = function(name, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='riepilogo') renderRiepilogo();
+};
+
+// ---- TOAST ----
+window.showToast = function(msg, isError=false) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast'+(isError?' error':'')+' show';
+  setTimeout(()=>t.classList.remove('show'),2800);
+};
+
+// ---- PASSWORD LOGIN ----
+// Change this password to whatever you want!
+const APP_PASSWORD = 'tavernar2024';
+const SESSION_KEY = 'tavernar_auth';
+
+function checkLogin() {
+  if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+  }
+}
+
+window.doLogin = function() {
+  const pw = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  if (pw === APP_PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, 'ok');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'inline-block';
+    err.textContent = '';
+  } else {
+    err.textContent = '❌ Password errata, riprova';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginPassword').focus();
+    // Shake animation
+    const card = document.querySelector('.login-card');
+    card.style.animation = 'none';
+    card.offsetHeight;
+    card.style.animation = 'shake 0.4s ease';
+  }
+};
+
+window.doLogout = function() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('loginPassword').value = '';
+};
+
+window.togglePw = function() {
+  const inp = document.getElementById('loginPassword');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+};
+
+checkLogin();
+
+</script>
+</body>
+</html>
